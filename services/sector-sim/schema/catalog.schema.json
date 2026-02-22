@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sector Sim Primitive Catalog",
+  "type": "object",
+  "required": ["version", "primitives"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "primitives": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/primitive" }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "primitive": {
+      "type": "object",
+      "required": ["category", "capabilities", "sim", "render", "constraints", "rollout"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["ENTITY", "MODULE", "BLOCK"]
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["POWER_GEN", "STORAGE", "AESTHETIC", "LIGHTING", "WAYFINDING", "STRUCTURAL", "NAVIGATION"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "sim": {
+          "type": "object",
+          "required": ["power_generation_kw", "power_consumption_kw", "tick_handler"],
+          "properties": {
+            "power_generation_kw": { "type": "number", "minimum": 0 },
+            "power_consumption_kw": { "type": "number", "minimum": 0 },
+            "tick_handler": { "type": "string" },
+            "storage_capacity_units": { "type": "number", "minimum": 0 },
+            "visibility_score": { "type": "number", "minimum": 0, "maximum": 1.0 },
+            "max_contiguous_segments": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        },
+        "render": {
+          "type": "object",
+          "required": ["fallback"],
+          "properties": {
+            "mesh": { "type": "string" },
+            "fallback": { "$ref": "#/definitions/fallback_render" }
+          },
+          "additionalProperties": false
+        },
+        "constraints": {
+          "type": "object",
+          "required": ["attach_to"],
+          "properties": {
+            "attach_to": {
+              "type": "string",
+              "enum": ["block_top_face", "block_any_face", "module_face", "none"]
+            },
+            "max_count_per_block": { "type": "integer", "minimum": 1 },
+            "max_contiguous_length": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        },
+        "rollout": {
+          "type": "string",
+          "enum": ["EXPERIMENTAL", "BETA", "STABLE", "DEPRECATED"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "fallback_render": {
+      "type": "object",
+      "required": ["type", "color", "emissive"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["flat_quad", "box", "emissive_strip", "sphere", "cylinder"]
+        },
+        "color": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0, "maximum": 1.0 },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "emissive": { "type": "boolean" },
+        "glow_intensity": { "type": "number", "minimum": 0, "maximum": 10.0 },
+        "color_palette": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": { "type": "number", "minimum": 0, "maximum": 1.0 },
+            "minItems": 4,
+            "maxItems": 4
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

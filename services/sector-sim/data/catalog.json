@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/catalog.schema.json",
+  "version": "1.4.0",
+  "primitives": {
+    "solar_panel_v1": {
+      "category": "ENTITY",
+      "capabilities": ["POWER_GEN"],
+      "sim": {
+        "power_generation_kw": 12.0,
+        "power_consumption_kw": 0.0,
+        "tick_handler": "power_gen_tick"
+      },
+      "render": {
+        "mesh": "solar_panel_v1.glb",
+        "fallback": {
+          "type": "flat_quad",
+          "color": [0.2, 0.3, 0.8, 1.0],
+          "emissive": false
+        }
+      },
+      "constraints": {
+        "attach_to": "block_top_face",
+        "max_count_per_block": 4
+      },
+      "rollout": "STABLE"
+    },
+    "cargo_crate_v1": {
+      "category": "ENTITY",
+      "capabilities": ["STORAGE"],
+      "sim": {
+        "power_generation_kw": 0.0,
+        "power_consumption_kw": 0.5,
+        "tick_handler": "storage_tick",
+        "storage_capacity_units": 100
+      },
+      "render": {
+        "mesh": "cargo_crate_v1.glb",
+        "fallback": {
+          "type": "box",
+          "color": [0.6, 0.4, 0.2, 1.0],
+          "emissive": false
+        }
+      },
+      "constraints": {
+        "attach_to": "block_top_face",
+        "max_count_per_block": 8
+      },
+      "rollout": "STABLE"
+    }
+  }
+}
