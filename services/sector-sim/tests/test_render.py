@@ -30,3 +30,37 @@ def test_fallback_always_resolves():
         assert "type" in desc, f"{name}: missing fallback type"
         assert "color" in desc, f"{name}: missing fallback color"
         assert len(desc["color"]) == 4, f"{name}: color must be RGBA"
+
+
+def test_neon_light_strip_v2_fallback_emissive_strip():
+    """neon_light_strip_v2 must render as emissive_strip when no renderer is available.
+
+    This is the render fallback smoke test: an unknown renderer must
+    gracefully display the primitive as a bright emissive strip.
+    """
+    from render.fallback import resolve_render
+
+    catalog = _load_catalog()
+    prim = catalog["primitives"]["neon_light_strip_v2"]
+
+    # Simulate an unknown renderer by providing an empty set
+    desc = resolve_render(prim, available_renderers=set())
+    assert desc["mode"] == "fallback"
+    assert desc["type"] == "emissive_strip"
+    assert desc["emissive"] is True
+    assert desc["glow_intensity"] > 0, "Emissive strip must have positive glow"
+    assert "color_palette" in desc, "Emissive strip must include color palette"
+    assert len(desc["color"]) == 4
+
+
+def test_neon_light_strip_v2_fallback_with_unknown_renderer():
+    """Even with a renderer set that doesn't include the mesh, fallback works."""
+    from render.fallback import resolve_render
+
+    catalog = _load_catalog()
+    prim = catalog["primitives"]["neon_light_strip_v2"]
+
+    # Provide renderers that don't know about neon_light_strip_v2.glb
+    desc = resolve_render(prim, available_renderers={"other_mesh.glb", "basic.glb"})
+    assert desc["mode"] == "fallback"
+    assert desc["type"] == "emissive_strip"
