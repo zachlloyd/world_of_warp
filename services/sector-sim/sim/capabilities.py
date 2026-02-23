@@ -74,6 +74,29 @@ def wayfinding_tick(entity, sector_state, tick, seed):
     return sector_state
 
 
+def neon_light_tick(entity, sector_state, tick, seed):
+    """Tick handler for neon_light_strip_v2 (LIGHTING + WAYFINDING).
+
+    Consumes power, contributes to local lighting level, and adds to
+    the local visibility score used by drone traffic heuristics.
+    All outputs are deterministic — no seed-dependent randomness.
+    """
+    consumption = entity["sim"]["power_consumption_kw"]
+    sector_state.setdefault("power_pool_kw", 0.0)
+    sector_state["power_pool_kw"] -= consumption
+
+    # Lighting contribution
+    sector_state.setdefault("lighting_level", 0.0)
+    sector_state["lighting_level"] += 1.0
+
+    # Wayfinding visibility contribution
+    visibility = entity["sim"].get("visibility_score", 0.0)
+    sector_state.setdefault("local_visibility_score", 0.0)
+    sector_state["local_visibility_score"] += visibility
+
+    return sector_state
+
+
 # ---------------------------------------------------------------------------
 # Handler registry
 # ---------------------------------------------------------------------------
@@ -83,6 +106,7 @@ TICK_HANDLERS = {
     "storage_tick": storage_tick,
     "lighting_tick": lighting_tick,
     "wayfinding_tick": wayfinding_tick,
+    "neon_light_tick": neon_light_tick,
 }
 
 

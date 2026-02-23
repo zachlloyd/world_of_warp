@@ -30,3 +30,36 @@ def test_fallback_always_resolves():
         assert "type" in desc, f"{name}: missing fallback type"
         assert "color" in desc, f"{name}: missing fallback color"
         assert len(desc["color"]) == 4, f"{name}: color must be RGBA"
+
+
+def test_emissive_strip_fallback():
+    """neon_light_strip_v2 fallback must resolve as emissive strip with glow and palette."""
+    from render.fallback import resolve_render
+
+    catalog = _load_catalog()
+    prim = catalog["primitives"]["neon_light_strip_v2"]
+    desc = resolve_render(prim, available_renderers=set())
+
+    assert desc["mode"] == "fallback"
+    assert desc["type"] == "emissive_strip"
+    assert desc["emissive"] is True
+    assert desc["glow_intensity"] == 3.5
+    assert "color_palette" in desc
+    assert len(desc["color_palette"]) == 3
+    # Each palette entry must be RGBA
+    for color in desc["color_palette"]:
+        assert len(color) == 4
+
+
+def test_emissive_fallback_with_unknown_renderer():
+    """An unknown renderer must still gracefully display the emissive strip fallback."""
+    from render.fallback import resolve_render
+
+    catalog = _load_catalog()
+    prim = catalog["primitives"]["neon_light_strip_v2"]
+    # Simulate renderers that don't know about the neon mesh
+    desc = resolve_render(prim, available_renderers={"other_mesh.glb"})
+
+    assert desc["mode"] == "fallback"
+    assert desc["type"] == "emissive_strip"
+    assert desc["emissive"] is True
