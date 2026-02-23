@@ -30,3 +30,20 @@ def test_fallback_always_resolves():
         assert "type" in desc, f"{name}: missing fallback type"
         assert "color" in desc, f"{name}: missing fallback color"
         assert len(desc["color"]) == 4, f"{name}: color must be RGBA"
+
+
+def test_neon_light_strip_emissive_fallback():
+    """neon_light_strip_v2 fallback must resolve as emissive strip with glow metadata."""
+    from render.fallback import resolve_render
+
+    catalog = _load_catalog()
+    prim = catalog["primitives"]["neon_light_strip_v2"]
+    desc = resolve_render(prim, available_renderers=set())
+
+    assert desc["mode"] == "fallback"
+    assert desc["type"] == "emissive_strip"
+    assert desc["emissive"] is True
+    assert "glow_intensity" in desc, "emissive fallback must include glow_intensity"
+    assert desc["glow_intensity"] > 0
+    assert "color_palette" in desc, "emissive fallback must include color_palette"
+    assert len(desc["color_palette"]) >= 1, "color_palette must have at least one entry"
